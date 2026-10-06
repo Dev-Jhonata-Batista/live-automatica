@@ -2,7 +2,7 @@ import requests
 from TikTokLive import TikTokLiveClient
 from TikTokLive.events import ConnectEvent, CommentEvent, GiftEvent
 
-client = TikTokLiveClient(unique_id="@tin.man067")
+client = TikTokLiveClient(unique_id="@robloxgamer2501")
 API_URL = "http://127.0.0.1:5000/eventos"
 
 @client.on(ConnectEvent)

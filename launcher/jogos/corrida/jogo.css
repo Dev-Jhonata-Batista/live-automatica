@@ -1,0 +1,361 @@
+:root {
+  --texto: #f4f6ff;
+  --suave: #a9b4d6;
+  --painel: rgba(9, 14, 30, 0.86);
+  --painel-forte: rgba(9, 14, 30, 0.95);
+  --borda: rgba(255, 255, 255, 0.1);
+  --dourado: #ffc21a;
+  --carro: #ff6a3d;
+  --moto: #2fc6ff;
+  --verde: #3ddc84;
+  --vermelho: #ff4d5e;
+  --laranja: #f59e0b;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: var(--texto);
+  user-select: none;
+}
+
+/* Posicao, tamanho e escala do palco sao definidos pelo SDK (/_sdk/palco.js). */
+.palco {
+  overflow: hidden;
+  background: #3d8f45;
+}
+
+#pista {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1080px;
+  height: 1920px;
+}
+
+/* ------------------------------------------------------------------ marca */
+.marca {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100px;
+  padding: 0 36px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: linear-gradient(180deg, rgba(5, 8, 18, 0.92), rgba(5, 8, 18, 0.55));
+}
+
+.logo { font-size: 38px; font-weight: 900; letter-spacing: 6px; white-space: nowrap; flex-shrink: 0; }
+.logo b { color: var(--dourado); }
+.streamer {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--suave);
+}
+
+.conexao {
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 24px;
+  font-weight: 800;
+  background: var(--vermelho);
+}
+.conexao[data-tipo="teste"] { background: var(--laranja); color: #1b1300; }
+
+/* ------------------------------------------------------------------ placar */
+.placar {
+  position: absolute;
+  top: 104px;
+  left: 20px;
+  right: 20px;
+  height: 146px;
+  display: grid;
+  /* o 1o bloco tem o numero da corrida e o selo da fase lado a lado */
+  grid-template-columns: 1.4fr 1fr 1.5fr;
+  gap: 14px;
+}
+
+.bloco {
+  min-width: 0;
+  padding: 12px 22px;
+  border-radius: 26px;
+  border: 2px solid var(--borda);
+  background: var(--painel);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.rotulo { font-size: 21px; font-weight: 800; letter-spacing: 3px; color: var(--suave); }
+
+.bloco strong {
+  font-size: 58px;
+  font-weight: 900;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.linha-corrida { display: flex; align-items: center; gap: 14px; min-width: 0; }
+/* o numero nunca encolhe; se faltar espaco, quem encolhe e o selo da fase */
+.linha-corrida strong { flex-shrink: 0; overflow: visible; }
+
+.fase {
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #3b4a6b;
+}
+.fase[data-fase="largada"] { background: var(--dourado); color: #1b1300; }
+.fase[data-fase="correndo"] { background: var(--verde); color: #04210f; }
+.fase[data-fase="chegada"] { background: #f4f4f4; color: #111; }
+.fase[data-fase="resultado"] { background: #a78bfa; color: #140a2e; }
+
+.bloco-lider strong { font-size: 42px; }
+.falta { font-size: 24px; font-weight: 800; color: var(--dourado); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ------------------------------------------------------------------ chamada */
+.chamada {
+  position: absolute;
+  top: 262px;
+  left: 20px;
+  right: 20px;
+  height: 58px;
+  border-radius: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  white-space: nowrap;
+  background: rgba(9, 14, 30, 0.8);
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px 12px;
+  border-radius: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #fff;
+  background: var(--carro);
+}
+.tag.moto { background: var(--moto); color: #04202b; }
+
+/* ------------------------------------------------------------------ contagem 3, 2, 1 */
+.contagem {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 560px;
+  text-align: center;
+  font-size: 300px;
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 12px 0 rgba(0, 0, 0, 0.35), 0 0 50px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+.contagem.ja { color: var(--dourado); }
+.contagem.pulo { animation: pulo 0.95s ease-out forwards; }
+
+@keyframes pulo {
+  0% { transform: scale(1.7); opacity: 0; }
+  22% { transform: scale(1); opacity: 1; }
+  80% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0; }
+}
+
+/* ------------------------------------------------------------------ pista vazia */
+.vazio {
+  position: absolute;
+  left: 80px;
+  right: 80px;
+  top: 700px;
+  padding: 36px 34px 30px;
+  border-radius: 34px;
+  text-align: center;
+  background: rgba(9, 14, 30, 0.9);
+  border: 3px solid rgba(255, 194, 26, 0.7);
+  animation: surgir 0.5s ease-out;
+}
+.vazio h2 { margin: 0 0 6px; font-size: 56px; font-weight: 900; color: var(--dourado); }
+.vazio p { margin: 0 0 26px; font-size: 30px; color: var(--suave); }
+.vazio p b { color: var(--texto); }
+
+.garagem { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 10px; }
+.modelo { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.modelo canvas { height: 100px; width: auto; }
+.nome-modelo { font-size: 24px; font-weight: 800; }
+.modelo .tag { font-size: 17px; }
+
+/* ------------------------------------------------------------------ podio */
+.podio {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  top: 470px;
+  padding: 34px 40px 30px;
+  border-radius: 36px;
+  text-align: center;
+  background: rgba(9, 14, 30, 0.94);
+  border: 4px solid var(--dourado);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: surgir 0.5s ease-out;
+}
+.podio-rotulo { font-size: 26px; font-weight: 900; letter-spacing: 6px; color: var(--dourado); }
+.podio h2 { margin: 2px 0 24px; font-size: 64px; font-weight: 900; }
+.podio-lista { display: flex; flex-direction: column; gap: 16px; }
+
+.lugar {
+  display: grid;
+  grid-template-columns: 90px 96px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 18px;
+  padding: 14px 22px;
+  border-radius: 24px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.06);
+}
+.lugar-1 { background: rgba(255, 194, 26, 0.18); border: 2px solid rgba(255, 194, 26, 0.6); }
+.lugar .colocacao { grid-row: 1 / 3; font-size: 54px; font-weight: 900; text-align: center; }
+.lugar-1 .colocacao { color: var(--dourado); }
+.lugar .avatar { grid-row: 1 / 3; }
+.lugar .quem { font-size: 40px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lugar .detalhe { font-size: 26px; font-weight: 600; color: var(--suave); }
+
+.avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: #3a4566;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  font-weight: 900;
+}
+.avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.podio-proxima { margin: 22px 0 0; font-size: 28px; font-weight: 700; color: var(--suave); }
+.sem-podio { font-size: 32px; color: var(--suave); }
+
+@keyframes surgir {
+  from { transform: translateY(30px) scale(0.96); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* ------------------------------------------------------------------ painel de baixo */
+.painel {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  height: 360px;
+  padding: 18px 26px;
+  border-radius: 28px;
+  border: 2px solid var(--borda);
+  background: var(--painel-forte);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.painel-topo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--suave);
+}
+
+.feed {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.feed li {
+  flex-shrink: 0;
+  font-size: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: entrarNoFeed 0.35s ease-out;
+}
+.feed li:nth-child(n + 4) { opacity: 0.7; }
+.feed .nome { font-weight: 900; }
+.feed .tag { font-size: 20px; vertical-align: 3px; }
+.feed li.destaque { color: var(--dourado); font-weight: 800; }
+.feed li.suave { color: var(--suave); }
+.feed li.erro { color: var(--vermelho); font-weight: 800; white-space: normal; }
+
+@keyframes entrarNoFeed {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* ------------------------------------------------------------------ erro ao abrir (aviso-de-erro.js) */
+/* Fica fora do palco e cobre a janela inteira, no tamanho real da janela. */
+.erro-ao-abrir {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: 28px;
+  background: #160a0e;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  user-select: text;
+}
+.erro-ao-abrir strong { font-size: 24px; color: var(--vermelho); }
+.erro-ao-abrir code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 15px;
+  color: #ffd6db;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

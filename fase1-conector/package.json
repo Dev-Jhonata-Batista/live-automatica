@@ -1,0 +1,19 @@
+{
+  "name": "pista-viva-conector",
+  "version": "0.1.0",
+  "description": "Fase 1: le comentarios e presentes de uma live do TikTok e mostra no terminal (nome provisorio: Pista Viva)",
+  "type": "module",
+  "private": true,
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "simular": "node src/index.js --simular",
+    "debug": "node src/index.js --debug"
+  },
+  "dependencies": {
+    "tiktok-live-connector": "2.5.0"
+  }
+}

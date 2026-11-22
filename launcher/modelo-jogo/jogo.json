@@ -1,0 +1,9 @@
+{
+  "id": "modelo",
+  "nome": "Novo jogo",
+  "versao": "0.1.0",
+  "descricao": "Descreva o jogo em uma frase.",
+  "entrada": "index.html",
+  "cor": "#38bdf8",
+  "ordem": 50
+}

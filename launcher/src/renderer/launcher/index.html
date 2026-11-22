@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <title>Pista Viva</title>
+  <link rel="stylesheet" href="launcher.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <span class="marca-icone" aria-hidden="true"></span>
+      <span class="marca-nome">PISTA VIVA</span>
+    </div>
+    <span class="versao" id="versao">v0.0.0</span>
+  </header>
+
+  <main>
+    <section class="cartao">
+      <label class="rotulo" for="arroba">Seu @ do TikTok</label>
+      <div class="campo-arroba">
+        <span class="prefixo">@</span>
+        <input id="arroba" type="text" autocomplete="off" spellcheck="false" maxlength="60" placeholder="seunome">
+      </div>
+      <p class="ajuda">O nome que aparece no seu perfil. Você precisa estar ao vivo para conectar.</p>
+
+      <label class="opcao">
+        <input id="simulador" type="checkbox">
+        <span>Modo teste <small>(live falsa, sem precisar estar ao vivo)</small></span>
+      </label>
+    </section>
+
+    <section class="cartao">
+      <div class="rotulo" id="rotuloJogos">Escolha o jogo</div>
+      <div class="lista-jogos" id="listaJogos" role="radiogroup" aria-labelledby="rotuloJogos"></div>
+      <p class="avisos-jogos" id="avisosJogos"></p>
+    </section>
+
+    <section class="cartao">
+      <div class="status-linha">
+        <span class="bolinha" id="bolinha" data-status="parado"></span>
+        <span class="status-titulo" id="statusTitulo">Desligado</span>
+      </div>
+      <p class="status-mensagem" id="statusMensagem">Clique em JOGAR para conectar na sua live.</p>
+
+      <div class="contadores">
+        <div><strong id="cComentarios">0</strong><span>comentários</span></div>
+        <div><strong id="cPresentes">0</strong><span>presentes</span></div>
+        <div><strong id="cCurtidas">0</strong><span>curtidas</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Rodape fixo: o botao JOGAR fica sempre visivel, mesmo com muitos jogos na lista. -->
+  <footer class="rodape">
+    <p class="erro" id="erro" role="alert"></p>
+
+    <button class="botao-jogar" id="jogar" type="button">JOGAR</button>
+
+    <p class="dica">
+      No TikTok LIVE Studio, adicione uma fonte <b>Captura de janela</b> e escolha
+      <b id="tituloJogo">Pista Viva - Jogo</b>.
+    </p>
+  </footer>
+
+  <script src="launcher.js"></script>
+</body>
+</html>

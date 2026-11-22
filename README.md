@@ -1,5 +1,11 @@
 # Live Automática
 
+> Gestão das lives: leia [GERENTE.md](GERENTE.md) (estado, plano e decisões), [ideias.md](ideias.md), [metricas/](metricas/) e [radar/](radar/).
+>
+> Launcher Windows (Electron) com os jogos para TikTok LIVE: pasta [launcher/](launcher/), guia em [LEIA-ME-LAUNCHER.md](LEIA-ME-LAUNCHER.md). Leitor de live no terminal: [fase1-conector/](fase1-conector/).
+
+A parte abaixo é a ponte YouTube + Roblox (Python).
+
 Integração entre uma **live do YouTube** e um **jogo no Roblox**. O programa lê os comentários e os Super Chats do chat da live em tempo real e os envia para uma API local, que o jogo pode consultar para reagir ao que acontece na transmissão.
 
 > Status: funcional, testado em uma transmissão real.

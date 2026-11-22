@@ -1,0 +1,9 @@
+{
+  "id": "corrida",
+  "nome": "Corrida",
+  "versao": "0.3.0",
+  "descricao": "Quem comenta CARRO ou MOTO entra na pista. Corridas automáticas de uns 4 minutos e meio.",
+  "entrada": "index.html",
+  "cor": "#ffc21a",
+  "ordem": 1
+}

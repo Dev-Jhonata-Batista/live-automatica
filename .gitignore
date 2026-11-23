@@ -2,3 +2,8 @@ venv/
 cloudflared.deb
 .env
 __pycache__/
+node_modules/
+dist/
+*.log
+*.sqlite
+*.db

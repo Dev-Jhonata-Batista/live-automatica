@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Novo jogo</title>
+  <link rel="stylesheet" href="jogo.css">
+</head>
+<body>
+  <!-- Tudo do jogo fica dentro do palco: 1080x1920 (9:16), escalado pelo SDK. -->
+  <div class="palco" id="palco">
+    <header class="topo">
+      <h1 id="nomeDoJogo">Novo jogo</h1>
+      <span class="status" id="status">DESLIGADO</span>
+    </header>
+    <p class="streamer" id="streamer">@</p>
+
+    <section class="painel">
+      <h2>Últimos eventos da live</h2>
+      <ul class="eventos" id="eventos"></ul>
+    </section>
+  </div>
+
+  <script type="module" src="jogo.js"></script>
+</body>
+</html>

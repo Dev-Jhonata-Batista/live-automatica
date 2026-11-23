@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <title>Pista Viva</title>
+  <link rel="stylesheet" href="launcher.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <span class="marca-icone" aria-hidden="true"></span>
+      <span class="marca-nome">PISTA VIVA</span>
+    </div>
+    <span class="versao" id="versao">v0.0.0</span>
+  </header>
+
+  <main>
+    <section class="cartao">
+      <label class="rotulo" for="arroba">Seu @ do TikTok</label>
+      <div class="campo-arroba">
+        <span class="prefixo">@</span>
+        <input id="arroba" type="text" autocomplete="off" spellcheck="false" maxlength="60" placeholder="seunome">
+      </div>
+      <p class="ajuda">O nome que aparece no seu perfil. Você precisa estar ao vivo para conectar.</p>
+
+      <label class="opcao">
+        <input id="simulador" type="checkbox">
+        <span>Modo teste <small>(live falsa, sem precisar estar ao vivo)</small></span>
+      </label>
+    </section>
+
+    <section class="cartao">
+      <div class="rotulo" id="rotuloJogos">Escolha o jogo</div>
+      <div class="lista-jogos" id="listaJogos" role="radiogroup" aria-labelledby="rotuloJogos"></div>
+      <p class="avisos-jogos" id="avisosJogos"></p>
+    </section>
+
+    <details class="cartao dobravel" id="cartaoPresentes" hidden>
+      <summary class="rotulo">Presentes → ações <small id="presentesJogo"></small></summary>
+      <p class="ajuda" id="presentesAjuda"></p>
+      <div class="linhas-presentes" id="linhasPresentes"></div>
+      <datalist id="presentesVistos"></datalist>
+      <div class="botoes-linha">
+        <button type="button" class="botao-pequeno" id="addPresente">+ presente</button>
+        <button type="button" class="botao-pequeno destaque" id="salvarPresentes">Salvar</button>
+      </div>
+      <div id="blocoMeta" hidden>
+        <label class="opcao"><input id="metaAtiva" type="checkbox"><span>Meta da live na tela <small>(experimento)</small></span></label>
+        <div class="grade-meta">
+          <input id="metaPresente" type="text" list="presentesVistos" placeholder="Presente (ex.: Rose)" maxlength="60">
+          <input id="metaQuantidade" type="number" min="1" max="100000" placeholder="Qtd.">
+          <input id="metaRecompensa" type="text" placeholder="Recompensa (ex.: FESTA NEON)" maxlength="30">
+        </div>
+        <p class="ajuda">Uma meta por live, sem pedir presente toda hora: pedir de forma repetida pode tirar a monetização.</p>
+      </div>
+      <p class="salvo" id="presentesSalvo"></p>
+    </details>
+
+    <details class="cartao dobravel" id="cartaoRotacao">
+      <summary class="rotulo">Rotação automática <small id="rotacaoResumo">desligada</small></summary>
+      <label class="opcao"><input id="rotAtiva" type="checkbox"><span>Trocar de jogo sozinho</span></label>
+      <div class="lista-rotacao" id="rotJogos"></div>
+      <label class="opcao-linha">Trocar a cada <input id="rotMinutos" type="number" min="5" max="240"> minutos</label>
+      <label class="opcao"><input id="rotCair" type="checkbox"><span>Trocar antes se o engajamento cair</span></label>
+      <label class="opcao-linha">Queda de <input id="rotQueda" type="number" min="20" max="90"> % em relação ao melhor momento</label>
+      <p class="ajuda">A troca acontece na mesma janela: a captura no LIVE Studio continua funcionando.</p>
+    </details>
+
+    <section class="cartao">
+      <div class="status-linha">
+        <span class="bolinha" id="bolinha" data-status="parado"></span>
+        <span class="status-titulo" id="statusTitulo">Desligado</span>
+      </div>
+      <p class="status-mensagem" id="statusMensagem">Clique em JOGAR para conectar na sua live.</p>
+
+      <p class="aviso-watchdog" id="aviso"></p>
+      <div class="contadores">
+        <div><strong id="cComentarios">0</strong><span>comentários</span></div>
+        <div><strong id="cPresentes">0</strong><span>presentes</span></div>
+        <div><strong id="cCurtidas">0</strong><span>curtidas</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Rodape fixo: o botao JOGAR fica sempre visivel, mesmo com muitos jogos na lista. -->
+  <footer class="rodape">
+    <p class="erro" id="erro" role="alert"></p>
+
+    <button class="botao-jogar" id="jogar" type="button">JOGAR</button>
+
+    <p class="dica">
+      No TikTok LIVE Studio, adicione uma fonte <b>Captura de janela</b> e escolha
+      <b id="tituloJogo">Pista Viva - Jogo</b>.
+    </p>
+  </footer>
+
+  <script src="launcher.js"></script>
+</body>
+</html>

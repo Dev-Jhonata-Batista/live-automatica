@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Corrida</title>
+  <link rel="stylesheet" href="jogo.css">
+  <!-- Mostra na tela um erro que impeca o jogo de abrir (ex.: virgula faltando no catalogo). -->
+  <script src="aviso-de-erro.js"></script>
+</head>
+<body>
+  <!-- Palco com resolucao fixa 1080x1920 (9:16), escalado pelo SDK para caber na janela. -->
+  <div class="palco" id="palco">
+    <!-- Pista, veiculos e nomes (desenhados por cena.js) -->
+    <canvas id="pista" width="1080" height="1920"></canvas>
+
+    <header class="marca">
+      <span class="logo">PISTA <b>VIVA</b></span>
+      <span class="streamer" id="streamer"></span>
+      <span class="conexao" id="conexao" hidden></span>
+    </header>
+
+    <section class="placar">
+      <div class="bloco">
+        <span class="rotulo">CORRIDA</span>
+        <div class="linha-corrida">
+          <strong id="numero">1</strong>
+          <span class="fase" id="fase" data-fase="aguardando">AGUARDANDO</span>
+        </div>
+      </div>
+      <div class="bloco">
+        <span class="rotulo" id="rotuloTempo">LARGADA</span>
+        <strong id="tempo">--:--</strong>
+      </div>
+      <div class="bloco bloco-lider">
+        <span class="rotulo" id="rotuloLider">PILOTOS</span>
+        <strong id="lider">0</strong>
+        <span class="falta" id="falta"></span>
+      </div>
+    </section>
+
+    <section class="chamada">
+      Comente <span class="tag carro">CARRO</span> ou <span class="tag moto">MOTO</span>
+      <span id="chamadaFim">para entrar na corrida</span>
+    </section>
+
+    <div class="contagem" id="contagem" hidden></div>
+
+    <section class="vazio" id="vazio">
+      <h2>Pista vazia!</h2>
+      <p>Comente <b>CARRO</b> ou <b>MOTO</b> e seja o primeiro a largar.</p>
+      <div class="garagem" id="garagem"></div>
+    </section>
+
+    <section class="podio" id="podio" hidden>
+      <span class="podio-rotulo">RESULTADO</span>
+      <h2 id="podioTitulo">Corrida 1</h2>
+      <div class="podio-lista" id="podioLista"></div>
+      <p class="podio-proxima" id="podioProxima"></p>
+    </section>
+
+    <footer class="painel">
+      <div class="painel-topo">
+        <span id="vagas">0/30 na pista</span>
+        <span id="fila"></span>
+      </div>
+      <ul class="feed" id="feed"></ul>
+    </footer>
+  </div>
+
+  <script type="module" src="jogo.js"></script>
+</body>
+</html>

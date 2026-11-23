@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Fuga Neon</title>
+  <link rel="stylesheet" href="jogo.css">
+  <!-- Mostra na tela um erro que impeça o jogo de abrir (ex.: vírgula faltando em regras.js). -->
+  <script src="aviso-de-erro.js"></script>
+</head>
+<body>
+  <!-- Palco 1080x1920 (9:16), escalado pelo SDK para caber na janela. -->
+  <div class="palco" id="palco">
+    <canvas id="cidade" width="1080" height="1920"></canvas>
+
+    <header class="marca">
+      <span class="logo">FUGA <b>NEON</b></span>
+      <span class="streamer" id="streamer"></span>
+      <span class="conexao" id="conexao" hidden></span>
+    </header>
+
+    <section class="placar">
+      <div class="equipe ladroes">
+        <span class="equipe-nome">LADRÕES</span>
+        <strong id="vitL">0</strong>
+        <span class="equipe-qtd" id="qtdL">0 na gangue</span>
+      </div>
+      <div class="centro">
+        <span class="rodada"><span id="rodada">RODADA 1</span> · <span id="bairro">ORLA NEON</span></span>
+        <span class="fase" id="fase" data-fase="preparacao">ESCOLHA SEU LADO</span>
+        <strong class="tempo" id="tempo">00:25</strong>
+      </div>
+      <div class="equipe policia">
+        <span class="equipe-nome">POLÍCIA</span>
+        <strong id="vitP">0</strong>
+        <span class="equipe-qtd" id="qtdP">0 na polícia</span>
+      </div>
+    </section>
+
+    <section class="medidor" id="medidor" data-perigo="nao">
+      <div class="medidor-topo">
+        <span id="medidorRotulo">COFRE x ALARME</span>
+        <span class="estrelas" id="estrelas">★☆☆☆☆</span>
+        <span class="escudo" id="escudo" hidden>ESCUDO ATIVO</span>
+        <strong id="medidorValor">0 x 0</strong>
+      </div>
+      <div class="barra"><div class="barra-l" id="barraL"></div></div>
+    </section>
+
+    <section class="chamada" id="chamada">Comente LADRÃO ou POLÍCIA para entrar</section>
+
+    <section class="meta" id="meta" hidden>
+      <span id="metaTexto"></span>
+      <div class="meta-barra"><div id="metaBarra"></div></div>
+    </section>
+
+    <div class="surpresa" id="surpresa" hidden></div>
+    <div class="faixa" id="faixa" hidden></div>
+    <section class="resultado" id="resultado" hidden></section>
+
+    <footer class="painel">
+      <div class="painel-col">
+        <span class="painel-titulo">AGORA</span>
+        <ul class="feed" id="feed"></ul>
+      </div>
+      <div class="painel-col estreita">
+        <span class="painel-titulo">DESTAQUES DA NOITE</span>
+        <ol class="destaques" id="destaques"></ol>
+        <span class="painel-titulo">AÇÕES <small>(ladrão / polícia)</small></span>
+        <ul class="legenda" id="legenda"></ul>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="jogo.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "id": "fuga-neon",
+  "nome": "Fuga Neon",
+  "versao": "0.1.0",
+  "descricao": "Ladrões x polícia numa cidade neon. Comente LADRÃO ou POLÍCIA; presentes viram nitro, helicóptero, bloqueio e mais.",
+  "entrada": "index.html",
+  "cor": "#ff3fa4",
+  "ordem": 0,
+  "presentes": {
+    "niveis": [
+      { "id": "pequeno", "nome": "Pequeno: NITRO / SIRENE" },
+      { "id": "medio", "nome": "Médio: FUMAÇA / BLOQUEIO" },
+      { "id": "grande", "nome": "Grande: ATALHO / HELICÓPTERO" },
+      { "id": "mega", "nome": "Mega: ESCUDO / PROCURADO MÁXIMO" }
+    ],
+    "padrao": "Sem configuração, o nível sai do valor do presente: até 4 moedas = pequeno, 5+ = médio, 30+ = grande, 100+ = mega."
+  },
+  "meta": true
+}

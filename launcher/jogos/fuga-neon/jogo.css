@@ -1,0 +1,174 @@
+:root {
+  --texto: #f4f6ff;
+  --suave: #b9b3d9;
+  --painel: rgba(12, 6, 26, 0.86);
+  --borda: rgba(255, 255, 255, 0.12);
+  --ladrao: #ffd23f;
+  --ladrao-forte: #ff9f1c;
+  --policia: #5cc8ff;
+  --policia-forte: #2d7bff;
+  --rosa: #ff3fa4;
+  --ciano: #29e7ff;
+  --vermelho: #ff4d5e;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: var(--texto);
+  user-select: none;
+}
+
+/* Posição, tamanho e escala do palco são definidos pelo SDK (/_sdk/palco.js). */
+.palco { overflow: hidden; background: #12081f; }
+
+#cidade { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+
+/* ------------------------------------------------------------------ marca */
+.marca {
+  position: absolute; left: 0; right: 0; top: 0; height: 90px;
+  padding: 0 36px; display: flex; align-items: center; gap: 22px;
+  background: linear-gradient(90deg, rgba(123, 44, 255, 0.5), rgba(255, 63, 164, 0.35));
+}
+.logo { font-size: 44px; font-weight: 900; letter-spacing: 4px; color: #fff; text-shadow: 0 0 18px var(--rosa); }
+.logo b { color: var(--ciano); text-shadow: 0 0 18px var(--ciano); }
+.streamer { font-size: 30px; font-weight: 700; color: var(--suave); }
+.conexao { margin-left: auto; font-size: 24px; font-weight: 800; padding: 6px 16px; border-radius: 10px; }
+.conexao[data-tipo="teste"] { background: #3d2a00; color: var(--ladrao); }
+.conexao[data-tipo="aviso"] { background: #4a0d18; color: #ffb3bd; }
+
+/* ------------------------------------------------------------------ placar */
+.placar {
+  position: absolute; left: 24px; right: 24px; top: 98px; height: 176px;
+  display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 14px;
+}
+.equipe, .centro {
+  background: var(--painel); border: 2px solid var(--borda); border-radius: 22px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.equipe.ladroes { border-color: var(--ladrao); }
+.equipe.policia { border-color: var(--policia); }
+.equipe-nome { font-size: 30px; font-weight: 900; letter-spacing: 2px; }
+.ladroes .equipe-nome, .ladroes strong { color: var(--ladrao); }
+.policia .equipe-nome, .policia strong { color: var(--policia); }
+.equipe strong { font-size: 74px; line-height: 1; font-weight: 900; }
+.equipe-qtd { font-size: 22px; color: var(--suave); font-weight: 600; }
+.rodada { font-size: 22px; color: var(--suave); font-weight: 700; letter-spacing: 1px; }
+.fase { font-size: 30px; font-weight: 900; margin-top: 4px; color: #fff; }
+.fase[data-fase="fuga"] { color: var(--rosa); }
+.fase[data-fase="reta"] { color: var(--vermelho); animation: piscar 0.6s infinite alternate; }
+.tempo { font-size: 66px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------ medidor */
+.medidor {
+  position: absolute; left: 24px; right: 24px; top: 282px; height: 72px;
+  background: var(--painel); border-radius: 18px; padding: 8px 20px; border: 2px solid var(--borda);
+}
+.medidor[data-perigo="sim"] { border-color: var(--vermelho); animation: piscar 0.4s infinite alternate; }
+.medidor-topo { display: flex; align-items: center; gap: 18px; font-size: 22px; font-weight: 800; }
+.medidor-topo strong { margin-left: auto; font-size: 28px; }
+.estrelas { letter-spacing: 2px; }
+.estrela-cheia { color: var(--ladrao); }
+.estrela-vazia { color: rgba(255, 255, 255, 0.2); }
+.escudo { color: var(--ciano); }
+.barra { height: 16px; margin-top: 6px; border-radius: 8px; background: rgba(92, 200, 255, 0.35); overflow: hidden; }
+.barra-l { height: 100%; width: 50%; background: linear-gradient(90deg, var(--ladrao-forte), var(--ladrao)); transition: width 0.2s linear; }
+
+/* ------------------------------------------------------------------ chamada e meta */
+.chamada {
+  position: absolute; left: 60px; right: 60px; top: 366px;
+  text-align: center; font-size: 34px; font-weight: 900;
+  padding: 10px 16px; border-radius: 16px;
+  background: rgba(255, 63, 164, 0.85); box-shadow: 0 0 30px rgba(255, 63, 164, 0.6);
+}
+.meta {
+  position: absolute; left: 80px; right: 80px; top: 440px;
+  background: var(--painel); border-radius: 14px; padding: 8px 18px;
+  font-size: 24px; font-weight: 800; text-align: center; border: 2px solid var(--ladrao);
+}
+.meta-barra { height: 12px; border-radius: 6px; background: rgba(255,255,255,0.15); margin-top: 6px; overflow: hidden; }
+.meta-barra div { height: 100%; width: 0; background: var(--ladrao); }
+
+/* ------------------------------------------------------------------ faixa, surpresa, resultado */
+.surpresa {
+  position: absolute; left: 40px; right: 40px; top: 1440px;
+  text-align: center; font-size: 30px; font-weight: 900; padding: 12px;
+  background: rgba(41, 231, 255, 0.85); color: #04111a; border-radius: 16px;
+}
+.faixa {
+  position: absolute; left: 0; right: 0; top: 760px; padding: 24px 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: rgba(10, 4, 22, 0.88); border-top: 4px solid var(--rosa); border-bottom: 4px solid var(--rosa);
+}
+.faixa strong { font-size: 84px; font-weight: 900; line-height: 1; letter-spacing: 2px; }
+.faixa span { font-size: 34px; font-weight: 700; color: var(--suave); }
+.faixa[data-equipe="ladroes"] { border-color: var(--ladrao); }
+.faixa[data-equipe="ladroes"] strong { color: var(--ladrao); }
+.faixa[data-equipe="policia"] { border-color: var(--policia); }
+.faixa[data-equipe="policia"] strong { color: var(--policia); }
+.faixa.entrando { animation: entrar 0.35s ease-out; }
+
+.resultado {
+  position: absolute; left: 60px; right: 60px; top: 560px;
+  padding: 40px; border-radius: 30px; text-align: center;
+  background: rgba(10, 4, 22, 0.94); border: 4px solid var(--rosa);
+  display: flex; flex-direction: column; gap: 14px; align-items: center;
+}
+.resultado[data-vencedor="ladroes"] { border-color: var(--ladrao); }
+.resultado[data-vencedor="policia"] { border-color: var(--policia); }
+.resultado-rotulo { font-size: 30px; font-weight: 800; color: var(--suave); letter-spacing: 2px; }
+.resultado h2 { margin: 0; font-size: 96px; font-weight: 900; line-height: 1; }
+.resultado[data-vencedor="ladroes"] h2 { color: var(--ladrao); }
+.resultado[data-vencedor="policia"] h2 { color: var(--policia); }
+.resultado-sub { margin: 0; font-size: 32px; font-weight: 600; }
+.resultado-mvps { display: flex; flex-direction: column; gap: 8px; }
+.mvp { font-size: 32px; font-weight: 800; }
+.mvp.ladroes { color: var(--ladrao); }
+.mvp.policia { color: var(--policia); }
+.resultado-recorde { font-size: 34px; font-weight: 900; color: #3dffa8; animation: piscar 0.5s infinite alternate; }
+.resultado-placar { margin: 0; font-size: 28px; color: var(--suave); font-weight: 700; }
+
+/* ------------------------------------------------------------------ painel */
+.painel {
+  position: absolute; left: 0; right: 0; top: 1540px; bottom: 0;
+  padding: 18px 28px; display: grid; grid-template-columns: 1.25fr 1fr; gap: 22px;
+  background: var(--painel); border-top: 3px solid var(--rosa);
+}
+.painel-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.painel-titulo { font-size: 20px; font-weight: 900; color: var(--suave); letter-spacing: 2px; }
+.painel-titulo small { font-weight: 600; letter-spacing: 0; }
+.feed, .destaques, .legenda { list-style: none; margin: 0; padding: 0; }
+.linha { font-size: 26px; font-weight: 700; padding: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.linha.ladroes { color: var(--ladrao); }
+.linha.policia { color: var(--policia); }
+.linha.neutro { color: var(--ciano); }
+.linha.forte { font-weight: 900; font-size: 28px; }
+.destaque { display: flex; gap: 12px; font-size: 26px; font-weight: 800; padding: 2px 0; }
+.destaque.ladroes { color: var(--ladrao); }
+.destaque.policia { color: var(--policia); }
+.destaque.vazio { color: var(--suave); font-weight: 600; font-size: 22px; }
+.destaque-nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legenda-linha { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 8px; font-size: 17px; font-weight: 700; padding: 1px 0; }
+.legenda-origem { color: var(--suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legenda-l { color: var(--ladrao); }
+.legenda-p { color: var(--policia); }
+
+@keyframes piscar { from { opacity: 1; } to { opacity: 0.55; } }
+@keyframes entrar { from { transform: scale(1.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ------------------------------------------------------------------ erro ao abrir */
+.erro-ao-abrir {
+  position: fixed; inset: 0; z-index: 99;
+  display: flex; flex-direction: column; justify-content: center; gap: 14px;
+  padding: 28px; background: #160a0e; color: #fff;
+  font-size: 18px; font-weight: 600; line-height: 1.4; user-select: text;
+}
+.erro-ao-abrir strong { font-size: 24px; color: var(--vermelho); }
+.erro-ao-abrir code { font-family: Consolas, "Courier New", monospace; font-size: 15px; color: #ffd6db; white-space: pre-wrap; word-break: break-word; }

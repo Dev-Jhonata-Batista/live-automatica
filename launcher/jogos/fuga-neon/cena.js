@@ -67,6 +67,15 @@ export function criarCena(canvas, { fotos }) {
         texto += a.trocou ? ` mudou para ${ladrao ? 'LADRÕES' : 'POLÍCIA'}` : ` entrou na ${ladrao ? 'gangue' : 'polícia'}`;
         tamanho = 32;
       }
+      // Combo do mesmo presente: atualiza o texto que já está na tela (x2, x3...).
+      const chave = a.tipo === 'acao' ? `${a.usuario.id}:${a.presente}` : '';
+      const existente = chave && flutuantes.find((f) => f.chave === chave);
+      if (existente) {
+        existente.texto = texto;
+        existente.tamanho = Math.min(80, tamanho + Math.min(14, a.unidades));
+        existente.vida = existente.total;
+        return;
+      }
       const yBase = partida.fase === FASES.FUGA ? (ladrao ? yFuga : yPolicia) : ladrao ? 900 : 1300;
       if (flutuantes.length >= MAX_FLUTUANTES) {
         // Sem espaço: tira o menor (comentário simples) para dar lugar.
@@ -88,6 +97,7 @@ export function criarCena(canvas, { fotos }) {
         cor,
         tamanho,
         foto: a.usuario.foto,
+        chave,
         x,
         y,
         vida: a.tipo === 'empurrao' ? 1.4 : 2.6,

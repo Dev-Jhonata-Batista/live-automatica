@@ -198,7 +198,8 @@ export function criarPlacar({ config }) {
         else linha(`${arrobaDe(a.usuario)} entrou: ${nomeEquipe(a.equipe)}${a.motivo === 'presente' ? ' (pelo presente)' : ''}`, a.equipe);
         break;
       case 'acao':
-        linha(`${arrobaDe(a.usuario)}: ${a.acao.nome}${a.unidades > 1 ? ` x${a.unidades}` : ''}`, a.equipe, true);
+        // Combo: atualiza a mesma linha (x2, x3...) em vez de criar uma linha por presente.
+        linha(`${arrobaDe(a.usuario)}: ${a.acao.nome}${a.unidades > 1 ? ` x${a.unidades}` : ''}`, a.equipe, true, `${a.usuario?.id}:${a.presente}`);
         if (a.nivel === 'grande' || a.nivel === 'mega') faixa(`${a.acao.nome}!`, arrobaDe(a.usuario), a.equipe);
         break;
       case 'bloqueado':
@@ -233,8 +234,14 @@ export function criarPlacar({ config }) {
     }
   }
 
-  function linha(texto, equipe, forte = false) {
+  function linha(texto, equipe, forte = false, chave = '') {
+    const primeira = el.feed.firstElementChild;
+    if (chave && primeira && primeira.dataset.chave === chave) {
+      primeira.textContent = texto;
+      return;
+    }
     const li = criar('li', `linha ${equipe}${forte ? ' forte' : ''}`, texto);
+    if (chave) li.dataset.chave = chave;
     el.feed.prepend(li);
     while (el.feed.children.length > MAX_LINHAS) el.feed.lastElementChild.remove();
   }

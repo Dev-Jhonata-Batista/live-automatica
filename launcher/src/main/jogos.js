@@ -95,7 +95,13 @@ function lerJogo(pasta, nomeDaPasta) {
   if (!relativo || relativo.startsWith('..') || path.isAbsolute(relativo)) {
     return { erro: `"entrada" ("${entrada}") precisa ser um arquivo dentro da pasta do jogo.` };
   }
-  if (!fs.statSync(caminhoEntrada, { throwIfNoEntry: false })?.isFile()) {
+  let ehArquivo = false;
+  try {
+    ehArquivo = Boolean(fs.statSync(caminhoEntrada, { throwIfNoEntry: false })?.isFile());
+  } catch {
+    // caminho invalido (ex.: caractere proibido): trata como arquivo inexistente
+  }
+  if (!ehArquivo) {
     return { erro: `não achei o arquivo de entrada "${entrada}".` };
   }
 

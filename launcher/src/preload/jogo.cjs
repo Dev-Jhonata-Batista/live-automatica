@@ -10,3 +10,7 @@ contextBridge.exposeInMainWorld('live', {
   aoReceberEvento: (fn) => ipcRenderer.on('live:evento', (_e, evento) => fn(evento)),
   aoMudarStatus: (fn) => ipcRenderer.on('live:status', (_e, status) => fn(status))
 });
+
+// Sinal de vida para o watchdog do launcher: se a pagina travar (laco infinito,
+// travamento do processo), os sinais param e o launcher reabre o jogo sozinho.
+setInterval(() => ipcRenderer.send('jogo:batimento'), 1000);

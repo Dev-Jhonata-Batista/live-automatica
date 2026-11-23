@@ -208,3 +208,32 @@ main {
 
 .dica { color: var(--suave); font-size: 12.5px; text-align: center; margin: 0; }
 .dica b { color: var(--texto); }
+
+/* ------------------------------------------------------------------ 0.4: presentes, meta, rotacao */
+.dobravel summary { cursor: pointer; list-style: none; margin-bottom: 0; }
+.dobravel summary::-webkit-details-marker { display: none; }
+.dobravel summary::before { content: '▸ '; color: var(--suave); }
+.dobravel[open] summary::before { content: '▾ '; }
+.dobravel[open] summary { margin-bottom: 8px; }
+.dobravel summary small { color: var(--suave); font-weight: 400; margin-left: 6px; }
+
+.linhas-presentes { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.linha-presente { display: grid; grid-template-columns: 1fr 1.2fr 28px; gap: 6px; }
+.linha-presente input, .linha-presente select, .grade-meta input, .opcao-linha input {
+  background: #0b0e1a; color: var(--texto); border: 1px solid var(--borda); border-radius: 6px;
+  padding: 6px 8px; font: inherit; font-size: 13px; min-width: 0; user-select: text;
+}
+.opcao-linha input { width: 64px; margin: 0 4px; }
+.linha-presente button { background: transparent; border: 1px solid var(--borda); color: var(--suave); border-radius: 6px; cursor: pointer; }
+.botoes-linha { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 10px; }
+.botao-pequeno { background: #23284a; color: var(--texto); border: 0; border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.botao-pequeno.destaque { background: var(--destaque); color: #1a1400; font-weight: 700; }
+.grade-meta { display: grid; grid-template-columns: 1.2fr 0.6fr; gap: 6px; margin: 8px 0 0; }
+.grade-meta input:last-child { grid-column: 1 / -1; }
+.salvo { color: var(--verde); font-size: 12.5px; margin: 6px 0 0; }
+.salvo:empty { display: none; }
+.lista-rotacao { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 8px 24px; }
+.opcao-linha { display: block; color: var(--texto); font-size: 13.5px; margin: 6px 0; }
+.aviso-watchdog { color: var(--amarelo); font-size: 12.5px; margin: -6px 0 10px; }
+.aviso-watchdog:empty { display: none; }
+.lista-jogos .jogo.atual { box-shadow: 0 0 0 2px var(--verde) inset; }

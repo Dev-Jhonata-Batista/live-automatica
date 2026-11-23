@@ -4,11 +4,18 @@
 // - Ao clicar em JOGAR: valida a licenca, abre o jogo escolhido numa janela 9:16
 //   e liga a conexao com a live.
 // - Repassa os eventos da live para a janela do jogo e o status para as duas janelas.
+// - Grava todo evento no banco local (banco.js) para as metricas.
+// - Watchdog: reabre o jogo se ele travar ou fechar sozinho, e religa a conexao se
+//   ela ficar muda por muito tempo.
+// - Rotacao automatica: troca de jogo por tempo ou quando o engajamento cai, na
+//   MESMA janela (a captura no LIVE Studio continua funcionando).
 
 import { app, BrowserWindow, ipcMain, Menu, screen, session } from 'electron';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { lerConfig, salvarConfig, configDoJogo } from './config.js';
+import { lerConfig, salvarConfig, configDoJogo, salvarConfigDoJogo, lerRotacao, salvarRotacao } from './config.js';
+import { abrirBanco } from './banco.js';
 import { validarLicenca } from './licenca.js';
 import { SessaoLive } from './sessaoLive.js';
 import { carregarJogos, listarJogos, obterJogo, resumoDoJogo } from './jogos.js';
@@ -33,6 +40,25 @@ let ultimoStatus = { status: STATUS.PARADO, mensagem: 'Desligado.', simulador: f
 let contadores = novosContadores();
 let avisosJogos = [];
 let avisarJogoPronto = null; // resolve a espera do JOGAR quando o jogo chama conectarPlataforma()
+let banco = null;
+let modoTesteAtual = false;
+
+// Watchdog
+const WATCHDOG_INTERVALO_MS = 5000;
+const SEM_BATIMENTO_MS = 20000;          // jogo visivel sem desenhar por 20 s = travado
+const CONEXAO_MUDA_MS = 5 * 60000;       // conectado e nenhum evento por 5 min = religa
+const MAX_REINICIOS = 5;                 // no maximo 5 reinicios do jogo em 10 minutos
+const JANELA_REINICIOS_MS = 10 * 60000;
+let jogando = false;                     // true entre JOGAR e PARAR
+let ultimoBatimento = 0;
+let ultimoEventoLive = 0;
+let reinicios = [];
+let timerWatchdog = null;
+
+// Rotacao
+let inicioJogoAtual = 0;
+let melhorRitmo = 0;                     // melhor media de interacoes/min do jogo atual
+let ultimaChecagemRotacao = 0;
 
 const sessao = new SessaoLive();
 
@@ -63,9 +89,13 @@ function iniciarApp() {
   registrarIpc();
   ligarSessao();
   criarJanelaLauncher();
+  abrirBanco(app.getPath('userData')).then((b) => {
+    banco = b;
+  });
 }
 
 app.on('window-all-closed', () => app.quit());
+app.on('will-quit', () => banco?.fechar());
 
 let saindo = false;
 app.on('before-quit', (evento) => {
@@ -83,7 +113,23 @@ app.on('web-contents-created', (_e, conteudo) => {
 
 process.on('unhandledRejection', (erro) => {
   console.error('[launcher] erro nao tratado:', erro);
+  registrar(`erro nao tratado: ${erro?.message || erro}`);
 });
+process.on('uncaughtException', (erro) => {
+  // Um erro inesperado no processo principal nao pode derrubar a live.
+  console.error('[launcher] excecao nao tratada:', erro);
+  registrar(`excecao nao tratada: ${erro?.message || erro}`);
+});
+
+// Registro do watchdog e de erros em %APPDATA%\Pista Viva\launcher.log
+function registrar(texto) {
+  try {
+    const linha = `${new Date().toISOString()} ${texto}\n`;
+    fs.appendFileSync(path.join(app.getPath('userData'), 'launcher.log'), linha, 'utf8');
+  } catch {
+    // sem log, segue
+  }
+}
 
 // ------------------------------------------------------------------ catalogo de jogos
 
@@ -181,9 +227,18 @@ function criarJanelaJogo(jogo) {
     });
     if (MODO_DEV) conteudo.openDevTools({ mode: 'detach' });
 
+    // Watchdog: depois de aberto, se o jogo cair ou travar, reabre na mesma janela.
+    conteudo.on('render-process-gone', (_e, detalhes) => {
+      if (jogando && detalhes.reason !== 'clean-exit') reabrirJogo(`o jogo parou (${detalhes.reason})`);
+    });
+    conteudo.on('unresponsive', () => {
+      if (jogando) reabrirJogo('o jogo não responde');
+    });
+
     janelaJogo.on('closed', () => {
       janelaJogo = null;
       jogoAtual = null;
+      pararTudo();
       if (avisarJogoPronto) avisarJogoPronto(); // nao deixa o JOGAR esperando a toa
       avisarJogoPronto = null;
       sessao.parar();
@@ -208,8 +263,107 @@ function esperarJogoPronto() {
   });
 }
 
+function reabrirJogo(motivo) {
+  if (!janelaJogo || !jogoAtual) return;
+  const agora = Date.now();
+  reinicios = reinicios.filter((t) => agora - t < JANELA_REINICIOS_MS);
+  if (reinicios.length >= MAX_REINICIOS) {
+    registrar(`watchdog: ${motivo}; limite de reinicios atingido, nao reabri`);
+    avisarLauncher(`O jogo travou ${MAX_REINICIOS} vezes em 10 minutos. Clique em PARAR e JOGAR, ou troque de jogo.`);
+    return;
+  }
+  reinicios.push(agora);
+  ultimoBatimento = agora;
+  registrar(`watchdog: ${motivo}; reabrindo ${jogoAtual.id}`);
+  avisarLauncher(`Watchdog: ${motivo}. Reabri o jogo sozinho.`);
+  janelaJogo.webContents.loadURL(urlDoJogo(jogoAtual)).catch((erro) => registrar(`watchdog: falha ao reabrir: ${erro.message}`));
+}
+
+function avisarLauncher(texto) {
+  enviar(janelaLauncher, 'launcher:aviso', texto);
+}
+
+function verificarSaude() {
+  if (!jogando || !janelaJogo || janelaJogo.isDestroyed()) return;
+  const agora = Date.now();
+
+  // 1. Jogo visivel que parou de desenhar (laco travado).
+  const visivel = janelaJogo.isVisible() && !janelaJogo.isMinimized();
+  if (visivel && ultimoBatimento && agora - ultimoBatimento > SEM_BATIMENTO_MS) {
+    reabrirJogo('o jogo parou de desenhar');
+  }
+
+  // 2. Conexao "conectada" mas muda ha muito tempo (so na live de verdade).
+  if (!modoTesteAtual && ultimoStatus.status === STATUS.CONECTADO && agora - ultimoEventoLive > CONEXAO_MUDA_MS) {
+    ultimoEventoLive = agora;
+    registrar('watchdog: conexao sem eventos ha 5 min; religando');
+    avisarLauncher('Watchdog: nenhum evento da live em 5 minutos. Religuei a conexão.');
+    sessao.iniciar({ arroba: arrobaAtual, simulador: false, chaveEuler: process.env.EULER_API_KEY });
+  }
+
+  // 3. Rotacao automatica (a cada 30 s).
+  if (agora - ultimaChecagemRotacao >= 30000) {
+    ultimaChecagemRotacao = agora;
+    verificarRotacao(agora);
+  }
+}
+
+// ------------------------------------------------------------------ rotacao automatica
+
+function verificarRotacao(agora) {
+  const rot = lerRotacao();
+  if (!rot.ativa || !jogoAtual) return;
+  const lista = rot.jogos.filter((id) => obterJogo(id));
+  if (lista.length < 2) return;
+
+  const minutosNoJogo = (agora - inicioJogoAtual) / 60000;
+  let motivo = null;
+  if (minutosNoJogo >= rot.minutos) motivo = `${rot.minutos} min no mesmo jogo`;
+
+  if (!motivo && rot.trocarSeCair && banco && minutosNoJogo >= Math.max(10, rot.minutosMinimos)) {
+    const ritmo = banco.interacoesPorMinuto(5, agora);
+    melhorRitmo = Math.max(melhorRitmo, ritmo);
+    if (melhorRitmo >= 3 && ritmo < melhorRitmo * (1 - rot.quedaPct / 100)) {
+      motivo = `engajamento caiu ${Math.round((1 - ritmo / melhorRitmo) * 100)}%`;
+    }
+  } else if (banco && minutosNoJogo >= 5) {
+    melhorRitmo = Math.max(melhorRitmo, banco.interacoesPorMinuto(5, agora));
+  }
+  if (!motivo) return;
+
+  const posicao = lista.indexOf(jogoAtual.id);
+  const proximo = obterJogo(lista[(posicao + 1) % lista.length]);
+  if (!proximo || proximo.id === jogoAtual.id) return;
+  trocarDeJogo(proximo, `rotação: ${motivo}`);
+}
+
+function trocarDeJogo(jogo, motivo) {
+  if (!janelaJogo || !jogando) return;
+  registrar(`troca de jogo: ${jogoAtual?.id} -> ${jogo.id} (${motivo})`);
+  jogoAtual = jogo;
+  inicioJogoAtual = Date.now();
+  melhorRitmo = 0;
+  ultimoBatimento = Date.now();
+  banco?.trocarJogo(jogo.id);
+  enviar(janelaLauncher, 'launcher:jogoAtual', resumoDoJogo(jogo));
+  avisarLauncher(`Troquei para ${jogo.nome} (${motivo}).`);
+  janelaJogo.webContents.loadURL(urlDoJogo(jogo)).catch((erro) => registrar(`falha ao trocar de jogo: ${erro.message}`));
+}
+
+function pararTudo() {
+  jogando = false;
+  clearInterval(timerWatchdog);
+  timerWatchdog = null;
+  banco?.encerrarSessao();
+}
+
 function enviar(janela, canal, dados) {
-  if (janela && !janela.isDestroyed()) janela.webContents.send(canal, dados);
+  if (!janela || janela.isDestroyed()) return;
+  try {
+    janela.webContents.send(canal, dados);
+  } catch {
+    // a pagina esta recarregando (watchdog ou troca de jogo): o evento se perde, a live segue
+  }
 }
 
 // ------------------------------------------------------------------ sessao da live
@@ -222,6 +376,8 @@ function ligarSessao() {
   });
 
   sessao.on('evento', (evento) => {
+    ultimoEventoLive = Date.now();
+    banco?.gravar(evento);
     enviar(janelaJogo, 'live:evento', evento);
     if (contar(evento)) enviar(janelaLauncher, 'live:contadores', contadores);
   });
@@ -277,6 +433,7 @@ async function jogar({ arroba, simulador, jogo: idDoJogo } = {}) {
 
   salvarConfig({ arroba: nome, simulador: modoTeste, jogo: jogo.id });
   arrobaAtual = modoTeste ? (nome || 'teste') : nome;
+  modoTesteAtual = modoTeste;
   jogoAtual = jogo;
   contadores = novosContadores();
   enviar(janelaLauncher, 'live:contadores', contadores);
@@ -292,11 +449,27 @@ async function jogar({ arroba, simulador, jogo: idDoJogo } = {}) {
   await jogoPronto;
   if (!janelaJogo) return { ok: false, erro: '' }; // fechada (ou PARAR) enquanto abria
 
+  banco?.iniciarSessao({
+    plataforma: modoTeste ? 'simulador' : 'tiktok',
+    arroba: arrobaAtual,
+    simulador: modoTeste,
+    versao: app.getVersion(),
+    jogo: jogo.id
+  });
   await sessao.iniciar({
     arroba: arrobaAtual,
     simulador: modoTeste,
     chaveEuler: process.env.EULER_API_KEY
   });
+
+  jogando = true;
+  reinicios = [];
+  inicioJogoAtual = Date.now();
+  melhorRitmo = 0;
+  ultimoBatimento = Date.now();
+  ultimoEventoLive = Date.now();
+  clearInterval(timerWatchdog);
+  timerWatchdog = setInterval(verificarSaude, WATCHDOG_INTERVALO_MS);
 
   enviar(janelaLauncher, 'launcher:jogando', true);
   return { ok: true };
@@ -330,8 +503,37 @@ function registrarIpc() {
   });
 
   ipcMain.handle('launcher:parar', () => {
+    // PARAR seguro: desliga o watchdog antes, para ele nao reabrir nada.
+    pararTudo();
     if (janelaJogo) janelaJogo.destroy();
     return { ok: true };
+  });
+
+  // Config de cada jogo (presente -> acao e meta) e da rotacao.
+  ipcMain.handle('launcher:configJogo', (_e, id) => ({
+    config: configDoJogo(String(id || '')),
+    presentesVistos: banco?.presentesVistos() ?? []
+  }));
+  ipcMain.handle('launcher:salvarConfigJogo', (_e, id, parcial) => {
+    if (!obterJogo(String(id || ''))) return { ok: false, erro: 'Jogo não encontrado.' };
+    salvarConfigDoJogo(String(id), parcial);
+    return { ok: true };
+  });
+  ipcMain.handle('launcher:rotacao', () => lerRotacao());
+  ipcMain.handle('launcher:salvarRotacao', (_e, dados) => {
+    salvarRotacao(dados);
+    return { ok: true };
+  });
+  ipcMain.handle('launcher:trocarJogo', (_e, id) => {
+    const jogo = obterJogo(String(id || ''));
+    if (!jogo || !jogando) return { ok: false };
+    if (jogo.id !== jogoAtual?.id) trocarDeJogo(jogo, 'troca manual');
+    return { ok: true };
+  });
+
+  // Sinal de vida do jogo (o preload manda no maximo 1 por segundo).
+  ipcMain.on('jogo:batimento', (evento) => {
+    if (janelaJogo && evento.sender === janelaJogo.webContents) ultimoBatimento = Date.now();
   });
 
   // So a janela do jogo, carregada pelo esquema jogo://, recebe os dados da partida.

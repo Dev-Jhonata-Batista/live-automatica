@@ -1,6 +1,6 @@
 # GERENTE.md: estado da operação das lives
 
-Última atualização: 22/11/2026 (Claude). Ler no início de toda sessão, atualizar no fim.
+Última atualização: 23/11/2026 (Claude). Ler no início de toda sessão, atualizar no fim.
 
 ## Objetivo
 
@@ -13,9 +13,9 @@ Maximizar diamantes por hora de live, sem arriscar a conta @robloxgamer2501.
 | Conta TikTok | **55 seguidores, 0 curtidas, perfil privado, nenhum vídeo** (visto na página pública, sem login). |
 | Acesso ao LIVE | **Provavelmente bloqueado.** A própria TikTok Brasil (@tiktoklivebr) diz que o LIVE libera com 18 anos ou mais e 1.000 seguidores. O Jhon precisa conferir no app e no LIVE Studio (ver abaixo). |
 | Presentes | Exigem 18 anos e conta em dia; confirmar no app. |
-| Launcher (Electron) | 0.3.0: vários jogos, corrida 2D sem presentes, modo teste. Código agora também no repositório (`launcher/`). |
+| Launcher (Electron) | **0.4.0** (23/11): banco SQLite de eventos, `npm run relatorio`, watchdog, presente → ação por jogo, meta opcional, rotação automática, troca de jogo na mesma janela. Testado no Electron em modo teste (nuvem); falta o teste no PC do Jhon. |
 | Ponte YouTube + Roblox | Funciona (Python + Flask + Cloudflare). Os scripts Lua não estão no repositório. |
-| Jogo de assalto | Começando (nome de trabalho: **Fuga Neon**). |
+| Jogo de assalto | **Fuga Neon 0.1.0** (23/11): MVP jogável no modo teste. Ladrão x polícia por comentário, rodadas de 3 a 4 min, presentes viram ações, placar da noite, destaques, recordes, surpresas, meta opcional. |
 | Lives feitas | Nenhuma registrada. |
 
 ### O que o Jhon precisa conferir (só ele, logado)
@@ -37,6 +37,9 @@ Maximizar diamantes por hora de live, sem arriscar a conta @robloxgamer2501.
 | 22/11 | Assalto antes da Fase 4 da corrida | O hype do GTA 6 é agora; a corrida espera. |
 | 22/11 | Escolha de lado (ladrão/polícia) é grátis, por comentário; presentes só dão ações | A regra do TikTok desmonetiza "só apresentar dois lados e pedir presentes". |
 | 22/11 | Chave do YouTube removida do `.env.example` | Estava uma chave real no arquivo de exemplo. **Jhon precisa revogar essa chave no Google Cloud** e criar outra só no `.env`. |
+| 23/11 | Fuga Neon: ninguém é preso no 1º minuto da fuga; ações rendem menos perto do fim; vitória dos ladrões também ao chegar a 140 m | Na simulação, com muito presente as rodadas acabavam em segundos e a polícia ganhava quase sempre. |
+| 23/11 | Watchdog reabre o jogo na mesma janela (máx. 5 vezes em 10 min) e religa a conexão muda há 5 min | A captura do LIVE Studio não perde a fonte. |
+| 23/11 | Meta da live fica desligada por padrão e vira experimento na semana 2 | Pedir presente de forma repetida tira a monetização; uma meta por live é o limite seguro. |
 | 22/11 | **Pendente do Jhon:** live automática x Jhon presente narrando | A regra oficial desmonetiza live "operated primarily through automated systems" e "largely passive or unattended". Recomendação: Jhon presente com microfone; o watchdog é para travamentos, não para piloto automático. |
 
 ## Prioridades
@@ -77,5 +80,6 @@ Nada aqui garante ganho: o plano mede e corta o que não funcionar em 3 lives.
 
 ## Próximos passos
 
-- Claude: terminar o Fuga Neon MVP e o launcher 0.4.
+- Jhon: testar o launcher 0.4 + Fuga Neon no modo teste (LEIA-ME-LAUNCHER.md, seção 7) e mandar print ou erro.
 - Jhon: os 5 itens de "O que o Jhon precisa conferir" + revogar a chave do YouTube + responder a decisão sobre presença na live.
+- Claude (seguinte, pelo plano): leitor do chat do YouTube no launcher (plano B e live no YouTube), checklist INICIAR LIVE, cortes de 30 s.

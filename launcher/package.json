@@ -1,7 +1,7 @@
 {
   "name": "pista-viva-launcher",
   "productName": "Pista Viva",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Launcher da live interativa (nome provisorio: Pista Viva)",
   "type": "module",
   "private": true,
@@ -9,7 +9,8 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "novo-jogo": "node scripts/novo-jogo.js"
+    "novo-jogo": "node scripts/novo-jogo.js",
+    "relatorio": "node --no-warnings scripts/relatorio.js"
   },
   "dependencies": {
     "tiktok-live-connector": "2.5.0"

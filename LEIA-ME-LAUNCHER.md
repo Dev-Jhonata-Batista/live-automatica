@@ -18,6 +18,7 @@ live-automatica/
     ├── package.json
     ├── COMO-CRIAR-UM-JOGO.md   <- guia para criar e adicionar jogos novos
     ├── jogos/                  <- cada pasta aqui é um jogo que aparece na lista
+    │   ├── fuga-neon/          <- 0.4: ladrões x polícia (veja a seção 7)
     │   └── corrida/            <- Fase 3: a corrida (veja a seção 6)
     │       ├── jogo.json       <- ficha do jogo
     │       ├── index.html      <- tela: canvas da pista + placar
@@ -35,14 +36,16 @@ live-automatica/
     │           └── desenhos.js <- arte de cada modelo, feita em código
     ├── modelo-jogo/            <- ponto de partida copiado pelo "npm run novo-jogo"
     ├── scripts/
-    │   └── novo-jogo.js        <- cria jogos/<id> a partir do modelo
+    │   ├── novo-jogo.js        <- cria jogos/<id> a partir do modelo
+    │   └── relatorio.js        <- 0.4: relatório da live a partir do banco de eventos
     └── src/
         ├── main/
         │   ├── main.js         <- abre as janelas, liga a live, repassa os eventos
         │   ├── jogos.js        <- catálogo: lê e valida as pastas de jogos
         │   ├── protocolo.js    <- jogo://: entrega os arquivos de cada jogo com segurança
         │   ├── sessaoLive.js   <- liga/desliga a conexão (real ou modo teste)
-        │   ├── config.js       <- salva o último @, o jogo escolhido e a config de cada jogo
+        │   ├── config.js       <- salva o último @, o jogo escolhido, a config de cada jogo e a rotação
+        │   ├── banco.js        <- 0.4: grava todo evento no SQLite local (métricas)
         │   └── licenca.js      <- validação do plano (vazio até a Fase 5)
         ├── live/               <- eventos.js, tiktok.js e simulador.js (vieram da Fase 1)
         ├── sdk/                <- funções comuns a todos os jogos (/_sdk/...)
@@ -327,3 +330,64 @@ Os números da corrida estão em `launcher\jogos\corrida\regras.js`, com um come
 ### O que fica para a Fase 4
 
 Presentes viram ações (nitro, óleo, míssil, escudo, bomba, empurrão), combos que fortalecem a ação, ranking dos 6 primeiros com a diferença em metros, barra de progresso da largada à chegada, feed de presentes e de ataques, avisos como "RODOU!" em cima do veículo e o menu presente → ação no launcher.
+
+---
+
+## 7. Versão 0.4 — Fuga Neon, banco de eventos, watchdog, presente → ação e rotação
+
+### O que tem de novo
+
+- **Jogo Fuga Neon** (primeiro da lista): ladrões x polícia numa cidade neon tropical, com nome, arte e cidade originais.
+  - Quem comenta **LADRÃO** (ou `L`, 💰) ou **POLÍCIA** (ou `P`, `PM`, 🚓) entra numa equipe. A equipe vale a noite toda; dá para trocar antes do assalto.
+  - Rodada de 3 a 4 minutos: **ESCOLHA SEU LADO** (25 s) → **ASSALTO** (20 s, cofre x alarme decide a vantagem inicial) → **FUGA** (até 2 min 30 s) → **RESULTADO** (12 s). A próxima começa sozinha, em outro bairro.
+  - Na fuga, a polícia encosta sozinha. Comentário, curtida, follow e compartilhamento de quem está numa equipe empurram a distância; aparece o @ da pessoa na tela na hora.
+  - Presentes viram ações pelo nível: pequeno = NITRO / SIRENE, médio = BOMBA DE FUMAÇA / BLOQUEIO, grande = ATALHO SECRETO / HELICÓPTERO, mega = ESCUDO NEON / PROCURADO MÁXIMO. Quem manda presente sem ter escolhido lado entra na equipe menor.
+  - Chance de virada até o fim: ninguém é preso no primeiro minuto da fuga, as ações rendem menos perto do fim, reta final com ações valendo 1,5x, eventos surpresa a cada 3 rodadas (chuva, apagão, engarrafamento).
+  - Placar da noite entre equipes, destaque de cada equipe na rodada, **destaques da noite** com o @, recordes (maior fuga e captura mais rápida) que ficam salvos de uma noite para outra.
+  - **Meta da live** opcional (desligada por padrão): ex.: 100 Rose liberam a FESTA NEON (toda ação vale o dobro por 18 s).
+- **Banco de eventos**: todo comentário, curtida, follow, compartilhamento, presente (com moedas) e o número de espectadores vão para `%APPDATA%\Pista Viva\eventos.sqlite`. O modo teste também grava, marcado como teste.
+- **Relatório**: `npm run relatorio` monta o relatório da última live (duração, espectadores, presentes e moedas por jogo e por hora, top doadores).
+- **Watchdog**: se o jogo travar ou cair, o launcher reabre o jogo **na mesma janela** (a captura não perde a fonte). Se a live ficar 5 minutos "conectada" sem nenhum evento, religa a conexão. A reconexão automática da Fase 1 continua. Tudo fica anotado em `%APPDATA%\Pista Viva\launcher.log`.
+- **Presentes → ações** no launcher: escolha qual presente é qual nível, para cada jogo.
+- **Rotação automática**: troca de jogo sozinho a cada X minutos ou quando o engajamento cair (ex.: 50% abaixo do melhor momento daquele jogo). Com a live rodando, clicar em outro jogo na lista troca na hora.
+- **PARAR** desliga o watchdog primeiro, depois a conexão, depois fecha o jogo e fecha a sessão no banco.
+
+### Instalar (pelo repositório)
+
+O código agora está no seu repositório. No VS Code, **Terminal > New Terminal** e rode, uma linha por vez:
+
+```powershell
+cd $HOME\live-automatica
+git fetch origin
+git switch gerente/inicio
+git pull
+cd launcher
+npm install
+npm start
+```
+
+`git switch gerente/inicio` pega a versão nova (que ainda está no pull request). Depois do merge do PR, troque por `git switch main` e `git pull`. O `npm install` baixa o Electron de novo nesta pasta (uns 120 MB).
+
+Precisa do Node 22.13 ou maior (`node -v`). Se aparecer `No such built-in module: node:sqlite`, atualize o Node: `winget upgrade OpenJS.NodeJS.LTS`.
+
+### Testar (modo teste)
+
+1. Em **Escolha o jogo**, deixe **Fuga Neon**. Marque **Modo teste** e clique em **JOGAR**.
+2. Você deve ver: "ESCOLHA SEU LADO" com a contagem; @ entrando na gangue ou na polícia; "ASSALTO!" com a barra cofre x alarme; "FUGA!" com o carro roxo na frente e as viaturas atrás; textos com @ e ações (NITRO, HELICÓPTERO...) aparecendo em cima dos carros; o resultado (FUGIRAM! ou PRESOS!) e a próxima rodada em outro bairro.
+3. Abra **Presentes → ações**, coloque `Rose` = Pequeno e `Galaxy` = Mega, clique em **Salvar**, depois **PARAR** e **JOGAR**. A legenda no canto de baixo passa a mostrar esses nomes.
+4. Abra **Rotação automática**, marque os dois jogos e ponha 5 minutos. Depois de 5 minutos jogando, a janela troca sozinha para a Corrida (o aviso aparece no launcher).
+5. Clique em **PARAR** e rode `npm run relatorio -- --teste`. Aparece o relatório da sessão de teste e o arquivo fica em `launcher\relatorios\`.
+
+Para ver uma rodada inteira mais rápido: em `launcher\jogos\fuga-neon\regras.js`, troque `fugaS: 150` por `fugaS: 70` e `capturaLiberadaS: 60` por `capturaLiberadaS: 20`. **Volte os números antes da live.**
+
+### Decisões técnicas da 0.4
+
+- **SQLite embutido do Node (`node:sqlite`) em vez de uma biblioteca:** não precisa instalar nem compilar nada no Windows; se não estiver disponível, grava em `eventos.jsonl` e o relatório lê do mesmo jeito.
+- **Só o fim do combo vai para o banco:** o TikTok manda um aviso a cada presente do combo; gravar só o último evita contar em dobro.
+- **Moedas, não diamantes:** a biblioteca informa o valor do presente em moedas. O número oficial de diamantes é o do TikTok Studio; o relatório deixa um campo para anotar.
+- **Watchdog reabre na mesma janela:** fechar e abrir outra janela faria o LIVE Studio perder a fonte de captura.
+- **Limite de 5 reaberturas em 10 minutos:** se o jogo quebra sempre, ficar reabrindo esconde o problema; o launcher avisa.
+- **Rotação por queda compara com o melhor momento do próprio jogo:** comparar com um número fixo não funcionaria com 10 ou com 1.000 espectadores.
+- **Escolher o lado é grátis (comentário) e os presentes só dão ações:** as Diretrizes de Monetização de LIVE do TikTok tiram a monetização de quem só apresenta dois lados e pede presentes. Nada na tela diz "mande presente para o seu lado ganhar".
+- **Níveis de presente por moedas quando não configurado:** o jogo funciona com qualquer presente, inclusive os que ainda não conhecemos.
+- **Sem armas, sangue ou violência realista:** perseguição de desenho animado com fumaça, bloqueio e helicóptero. Cidade, bairros, banco e letreiros são inventados.

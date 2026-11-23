@@ -50,6 +50,10 @@ Imagens, sons e fontes podem ficar em subpastas (ex.: `jogos/quiz/imagens/carro.
 | `entrada` | não | Página inicial do jogo. Padrão: `index.html`. |
 | `cor` | não | Cor do quadradinho na lista, no formato `#RRGGBB`. |
 | `ordem` | não | Posição na lista (menor aparece primeiro). Padrão: 100. |
+| `presentes` | não | Liga o quadro **Presentes → ações** no launcher. Formato: `{ "niveis": [ { "id": "pequeno", "nome": "Pequeno: NITRO" } ], "padrao": "texto de ajuda" }`. O jogo recebe a escolha do streamer em `info.config.presentes` (`{ "Rose": "pequeno" }`). Exemplo completo em `jogos/fuga-neon/jogo.json`. |
+| `meta` | não | `true` liga os campos **Meta da live** no launcher. O jogo recebe em `info.config.meta` (`{ ativa, presente, quantidade, recompensa }`). |
+
+O watchdog do launcher funciona sozinho para qualquer jogo: se a página travar, ela é reaberta. Para o jogo não perder estado importante numa reabertura, guarde no `localStorage` (o Fuga Neon guarda os recordes assim).
 
 Se o `jogo.json` tiver erro, o jogo não aparece na lista e o launcher mostra o motivo em amarelo, logo abaixo dela.
 

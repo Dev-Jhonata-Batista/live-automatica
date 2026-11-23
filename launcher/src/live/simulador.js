@@ -12,9 +12,11 @@ const NOMES = [
   'manu.ff', 'rick_br', 'isa.bela', 'fefe_22', 'otavio.x', 'paty.on', 'lucas_7', 'nina.cat',
   'vitor.gg', 'lele_s', 'breno.rs', 'jade.m', 'kaka_10', 'tati.vlog', 'samuca', 'helo.zz'
 ];
+// Serve para os dois jogos: carro/moto (Corrida) e ladrão/polícia (Fuga Neon).
 const COMENTARIOS = [
-  'carro', 'moto', 'CARRO!!', 'quero moto', 'carro', 'moto', 'eu quero carro', 'moto pfv',
-  'vai vai vai', 'kkkkk', 'boa noite', 'acelera!!', 'quem ta ganhando?'
+  'carro', 'moto', 'CARRO!!', 'quero moto', 'eu quero carro',
+  'ladrão', 'polícia', 'LADRAO!!', 'sou policia', 'L', 'P', '🚓',
+  'vai vai vai', 'kkkkk', 'boa noite', 'acelera!!', 'quem ta ganhando?', 'foge!!', 'pega ele!'
 ];
 // IDs falsos (sim-N): os IDs reais aparecem no modo --debug com uma live de verdade.
 const PRESENTES = [
@@ -23,8 +25,12 @@ const PRESENTES = [
   { presenteId: 'sim-3', nome: 'Ice Cream Cone', moedas: 1, combo: true },
   { presenteId: 'sim-4', nome: 'GG', moedas: 1, combo: true },
   { presenteId: 'sim-5', nome: 'Heart Me', moedas: 1, combo: false },
-  { presenteId: 'sim-6', nome: 'Doughnut', moedas: 30, combo: false }
+  { presenteId: 'sim-6', nome: 'Finger Heart', moedas: 5, combo: true },
+  { presenteId: 'sim-7', nome: 'Doughnut', moedas: 30, combo: false },
+  { presenteId: 'sim-8', nome: 'Galaxy', moedas: 1000, combo: false }
 ];
+// Nomes e valores acima são só exemplos para o modo teste. Os reais aparecem
+// no banco de eventos depois da primeira live de verdade.
 
 const sortear = (lista) => lista[Math.floor(Math.random() * lista.length)];
 
@@ -41,6 +47,12 @@ export class FonteSimulada extends EventEmitter {
     this.timers.push(setInterval(() => this.#comentario(), 900));
     this.timers.push(setInterval(() => this.#presente(), 2500));
     this.timers.push(setInterval(() => this.#curtida(), 4000));
+    this.timers.push(setInterval(() => this.#emitir(Math.random() < 0.5 ? TIPOS.SEGUIU : TIPOS.COMPARTILHOU, this.#usuario(), {}), 15000));
+    this.espectadores = 40;
+    this.timers.push(setInterval(() => {
+      this.espectadores = Math.max(5, this.espectadores + Math.round((Math.random() - 0.45) * 6));
+      this.#emitir(TIPOS.ESPECTADORES, null, { total: this.espectadores });
+    }, 5000));
   }
 
   async parar() {
@@ -78,7 +90,9 @@ export class FonteSimulada extends EventEmitter {
 
   #presente() {
     const usuario = this.#usuario();
-    const p = sortear(PRESENTES);
+    // Presentes caros são raros também no modo teste.
+    let p = sortear(PRESENTES);
+    if (p.moedas >= 1000 && Math.random() < 0.8) p = PRESENTES[0];
     const comboId = `${usuario.id}:${Date.now()}:${p.presenteId}`;
     const base = { presenteId: p.presenteId, nome: p.nome, moedas: p.moedas, comboId, imagem: null };
 

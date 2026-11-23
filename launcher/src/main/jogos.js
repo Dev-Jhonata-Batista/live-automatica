@@ -57,8 +57,8 @@ export function obterJogo(id) {
 // O que pode ser mostrado nas telas (sem o caminho da pasta no disco).
 export function resumoDoJogo(jogo) {
   if (!jogo) return null;
-  const { id, nome, versao, descricao, cor } = jogo;
-  return { id, nome, versao, descricao, cor };
+  const { id, nome, versao, descricao, cor, presentes, meta } = jogo;
+  return { id, nome, versao, descricao, cor, presentes, meta };
 }
 
 function lerJogo(pasta, nomeDaPasta) {
@@ -108,7 +108,21 @@ function lerJogo(pasta, nomeDaPasta) {
       entrada,
       cor: COR_VALIDA.test(dados.cor) ? dados.cor : COR_PADRAO,
       ordem: Number.isFinite(dados.ordem) ? dados.ordem : 100,
+      presentes: lerNiveisDePresente(dados.presentes),
+      meta: dados.meta === true,
       pasta
     }
   };
+}
+
+// "presentes" opcional no jogo.json: niveis de acao que o streamer liga a cada presente.
+//   { "niveis": [ { "id": "pequeno", "nome": "Pequeno: NITRO" }, ... ], "padrao": "texto de ajuda" }
+function lerNiveisDePresente(bruto) {
+  if (!bruto || typeof bruto !== 'object' || !Array.isArray(bruto.niveis)) return null;
+  const niveis = bruto.niveis
+    .filter((n) => n && typeof n.id === 'string' && /^[a-z0-9-]{1,30}$/.test(n.id))
+    .slice(0, 12)
+    .map((n) => ({ id: n.id, nome: typeof n.nome === 'string' ? n.nome.slice(0, 60) : n.id }));
+  if (!niveis.length) return null;
+  return { niveis, padrao: typeof bruto.padrao === 'string' ? bruto.padrao.slice(0, 300) : '' };
 }
